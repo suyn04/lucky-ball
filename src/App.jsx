@@ -34,6 +34,7 @@ function Room({ slug }) {
     if (m) { localStorage.setItem(keyOf(slug), m[1]); history.replaceState(null, '', location.pathname) }
     return localStorage.getItem(keyOf(slug))
   })
+  const viewOnly = new URLSearchParams(location.search).get('view') === '1'
   const [room, setRoom] = useState(null)
   const [draws, setDraws] = useState([])
   const [phase, setPhase] = useState('idle')
@@ -75,8 +76,8 @@ function Room({ slug }) {
   }, [slug, load])
 
   useEffect(() => {
-    if (token) supabase.rpc('check_admin', { p_slug: slug, p_token: token }).then(({ data }) => setAdmin(!!data))
-  }, [slug, token])
+  if (token && !viewOnly) supabase.rpc('check_admin', { p_slug: slug, p_token: token }).then(({ data }) => setAdmin(!!data))
+}, [slug, token, viewOnly])
 
   useEffect(() => {
     if (!show) return
